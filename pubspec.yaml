@@ -1,0 +1,6 @@
+name: fluminus_server
+dependencies:
+  luminus_api: ^0.1.16
+  angel_framework: ^2.0.0
+dev_dependencies:
+  dotenv: ^1.0.0
