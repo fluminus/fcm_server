@@ -1,7 +1,9 @@
 const express = require('express');
-const axios = require('axios');
+const body_parser = require('body-parser');
 const internal = express();
 const internal_port = 3004; // port 3004 is used to receive requests for sending push notifications
+
+internal.use(body_parser.json())
 
 // FCM part
 
@@ -12,7 +14,7 @@ admin.initializeApp({
     databaseURL: "https://f-luminus.firebaseio.com"
 });
 
-function sendMessage(id, title, body) {
+function sendMessage(token, title, body) {
     var payload = {
         notification: {
             title: title,
@@ -23,7 +25,7 @@ function sendMessage(id, title, body) {
         priority: "high",
         timeToLive: 60 * 60 * 24
     }
-    admin.messaging().sendToDevice(getToken(id), payload, options)
+    admin.messaging().sendToDevice(token, payload, options)
         .then((response) => {
             console.log(response);
         })
@@ -34,12 +36,10 @@ function sendMessage(id, title, body) {
 
 // Server part
 
-internal.get('/send', (req, res) => {
-    var id = req.query.id;
-    var title = req.query.title;
-    var body = req.query.body;
-    sendMessage(id, title, body);
+internal.listen(internal_port, '127.0.0.1', () => console.log(`Internel server listening on port ${internal_port}!`));
+
+internal.post('/send_pn', (req, res) => {
+    // console.log(req.body)
+    sendMessage(req.body.fcm_token, req.body.type, req.body.notifyMessage);
     res.send('success');
 });
-
-internal.listen(internal_port, '127.0.0.1', () => console.log(`Internel server listening on port ${internal_port}!`));
